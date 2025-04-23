@@ -1,36 +1,36 @@
 import re
 from urllib.parse import urlparse
 
-# Analyze email address
-# Analyze URL/links
+#TODO Analyze email address
+#Done: Analyze URL/links
 
 def phish_checker(link):
     
     #common patterns in phishing links
-    #TODO this currently suspects some normal links like canvas
-    sql_injection_patterns = [
-        r"(\%27)|(\')|(\-\-)|(\%23)|(#)",                              #for SQL meta characters
-        r"((\%3D)|(=))[^\n]*((\%27)|(\')|(\-\-)|(\%3B)|(;))",          #for common SQL injection characters
-        r"\w*((\%27)|(\'))(\s)*((\%6F)|o|(\%4F))((\%72)|r|(\%52))",    
-        r"exec(\s|\+)+(s|x)p\w+",                                      #for exec sp
-        r"UNION(\s)+SELECT",                                           #below is for capitalized commands like INSERT and UPDATE
-        r"SELECT(\s)+.*FROM",                                          # SELECT ... FROM
-        r"DROP(\s)+TABLE",                                             # DROP TABLE
-        r"INSERT(\s)+INTO",                                            # INSERT INTO
-        r"UPDATE(\s)+.*SET",                                           # UPDATE ... SET
-        r"WHERE(\s)+.*=",                                              # WHERE ... =
+    sql_injection_patterns = [                               #below is for capitalized commands like INSERT and UPDATE
+        r"(?i)\bUNION\s+SELECT\b",                           #UNION SELECT
+        r"(?i)\bSELECT\s+.*FROM\b",                          #SELECT ... FROM
+        r"(?i)DROP\s+TABLE\b",                               #DROP TABLE
+        r"(?i)\bINSERT\s+INTO\b",                            #INSERT INTO
+        r"(?i)\bUPDATE\s+.*SET\b",                           #UPDATE ... SET
+        r"(?i)\bWHERE\s+.*\s*=\s*.*",                        #WHERE ... = ...
+        r"(?i)\bexec(\s|\+)+(s|x)p\w+\b"                     #stored procedure call
+    ]
+
+    suspicious_chars = [
+        r"(\%27)|(\')|(\-\-)|(\%3B)|(;)",  #potentially dangerous encoding
     ]
 
     #this loop checks the link for the above patterns
-    for pattern in sql_injection_patterns:
-        if re.search(pattern, link, re.IGNORECASE):
+    for pattern in sql_injection_patterns + suspicious_chars:
+        if re.search(pattern, link):
             return "Suspicious link detected! Suspected to use SQL Injection."
         
     #checks for suspicious domains
     url = urlparse(link)
     domain = url.netloc
     if re.match(r"\d+\.\d+\.\d+\.\d+", domain):
-        return "Link uses an IP address instead of a domain. Not immediately dangerous but approach with caution."
+        return "Link uses a raw IP address instead of a domain. Can be suspicious, approach with caution."
     
     return "Nothing suspicious detected."
 
