@@ -28,7 +28,6 @@ def scan_url(url_input):
     except Exception as e:
         print(f"Error: {e}")
     
-
 def retrieve_url_analysis():
     """
     Sends an HTTP GET request using an analysis ID to the API to return a URL analysis.
@@ -50,4 +49,3 @@ def retrieve_url_analysis():
     except Exception as e:
         print(f"Error: {e}")
     
-print(retrieve_url_analysis())
