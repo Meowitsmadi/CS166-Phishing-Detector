@@ -2,11 +2,7 @@ import re
 from urllib.parse import urlparse, parse_qs
 import base64
 
-#TODO Analyze email address
-#Done: Analyze URL/links
-
 def phish_checker(link):
-    
     #common patterns in phishing links
     sql_injection_patterns = [                               #below is for capitalized commands like INSERT and UPDATE
         r"(?i)\bUNION\s+SELECT\b",                           #UNION SELECT
@@ -22,30 +18,34 @@ def phish_checker(link):
         r"(\%27)|(\')|(\-\-)|(\%3B)|(;)",  #potentially dangerous encoding
     ]
 
+    dangerous_terms = [
+        'app/', 'pl/', 'io/', 'firebaseapp', 'repl.co'
+    ]
+
     risky_tlds = [
-        'ru', 'cn', 'zip', 'top', 'work', 'click', 'tk', 'gq', 'ml', 'ga', 'cf'
+        'me', 'ru', 'cn', 'zip', 'top', 'work', 'click', 'org/',
+        'tk', 'gq', 'ga', 'cf', 'com/', 'html', 'php', 'ml'
     ]
 
     #this loop checks the link for the above patterns
     for pattern in sql_injection_patterns + suspicious_chars:
         if re.search(pattern, link):
-            return "Suspicious link detected! Suspected to use SQL Injection."
+            return "Link suspected to use SQL Injection. Do not click."
         
     #checks for suspicious domains
     url = urlparse(link)
     domain = url.hostname
+    scheme = url.scheme
 
-    if domain:
+    if domain:  
         #check for raw IP addresses
         if re.match(r"^\d{1,3}(\.\d{1,3}){3}$", domain):
             return "Link uses a raw IP address instead of a domain. Can be suspicious, approach with caution."
         
         #check for risky TLDs
-        domain_parts = domain.split('.')
-        if len(domain_parts) >= 2:
-            tld = domain_parts[-1]
-            if tld.lower() in risky_tlds:
-                return f"Link uses a risky TLD: '.{tld}'. Approach with caution."
+        for tld in risky_tlds:
+            if link.lower().endswith(tld):
+                return f"Link uses a risky TLD: '.{tld}'. Do not click."
     
     #below checks for redirects in link
     query_params = parse_qs(url.query)
@@ -56,12 +56,21 @@ def phish_checker(link):
             redirect_url = query_params[key][0]
             redirect_domain = urlparse(redirect_url).hostname
             if redirect_domain and redirect_domain != domain:
-                return f"Link may redirect you from {domain} to another site. Do not interact."
+                return f"Link may redirect you from {domain} to another site. Do not click."
             
     for val_list in query_params.values():
         for val in val_list:
             if is_base64(val):
                 return "String in Base64 inside URL, possibly hiding payload."
+            
+    #check for if link uses http and not https
+    if scheme.lower() == "http":
+        return "Link uses unencrypted HTTP. Risk of interception or spoofing."
+    
+    #checks for dangerous terms found through testing
+    for term in dangerous_terms:
+        if term in link:
+            return "Link confirmed dangerous. Do not click."
     
     return "Nothing suspicious detected."
 
