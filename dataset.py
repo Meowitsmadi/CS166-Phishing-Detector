@@ -1,4 +1,4 @@
-# Dataset used to test our application. Contains 134,850 legitimate and 100,945 phishing URLs.
+# Dataset used to test our application. Contains 130,630 legitimate and 97,831 phishing URLs.
 
 from ucimlrepo import fetch_ucirepo 
   
