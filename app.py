@@ -19,14 +19,16 @@ if mode == "Analyze URL":
             st.warning("Please enter a link before submitting.")
 
 elif mode == "Analyze Email":
-    # Text entry box for email analysis
-    email_input = st.text_area("Enter the email content to analyze:")
+    # File uploader for email analysis
+    uploaded_file = st.file_uploader("Upload the email file to analyze:", type=["eml"])
     if st.button("Submit Email"):
-        if email_input:
-            email_result = analyze_email(email_input)
+        if uploaded_file:
+            # Read the uploaded file
+            email_content = uploaded_file.read().decode("utf-8")
+            email_result = analyze_email(email_content)
             st.success(f"Email Analysis Result: {email_result}")
         else:
-            st.warning("Please enter email content before submitting.")
+            st.warning("Please upload an email file before submitting.")
 
 elif mode == "Dataset Overview":
     # Display dataset information
@@ -36,3 +38,5 @@ elif mode == "Dataset Overview":
     st.dataframe(X.head())  # Display the first few rows of features
     st.write("**Targets (y):**")
     st.dataframe(y.head())  # Display the first few rows of targets
+
+    
