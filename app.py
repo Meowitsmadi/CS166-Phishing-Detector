@@ -23,9 +23,9 @@ elif mode == "Analyze Email":
     uploaded_file = st.file_uploader("Upload the email file to analyze:", type=["eml"])
     if st.button("Submit Email"):
         if uploaded_file:
-            # Read the uploaded file
-            email_content = uploaded_file.read().decode("utf-8")
-            email_result = analyze_email(email_content)
+            # Read the uploaded file as a string
+            email_string = uploaded_file.getvalue().decode("utf-8")
+            email_result = analyze_email(email_string)
             st.success(f"Email Analysis Result: {email_result}")
         else:
             st.warning("Please upload an email file before submitting.")
