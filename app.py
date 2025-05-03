@@ -2,6 +2,7 @@ import streamlit as st
 from phishing_detector import phish_checker
 from dataset import X, y  # Import dataset features and targets
 from analyze_emails import analyze_email  # Assuming analyze_emails is defined in email_analyzer.py
+from search_dbs import retrieve_url_analysis
 
 st.title("Phishing Detector")
 
@@ -14,7 +15,14 @@ if mode == "Analyze URL":
     if st.button("Submit URL"):
         if user_input:
             result = phish_checker(user_input)
+            api_result = retrieve_url_analysis(user_input)
+
+            st.write("**Analyzing your link with our own detection algorithm...**")
             st.success(f"Result: {result}")
+
+            st.write("**Analyzing your link with the VirusTotal API...**")
+            st.success(f"Result: {api_result}")
+
         else:
             st.warning("Please enter a link before submitting.")
 

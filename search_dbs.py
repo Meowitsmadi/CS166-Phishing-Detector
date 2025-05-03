@@ -2,6 +2,7 @@ import requests
 from dotenv import load_dotenv
 import json
 import os
+import streamlit as st
 
 load_dotenv()
 
@@ -28,12 +29,11 @@ def scan_url(url_input):
     except Exception as e:
         print(f"Error: {e}")
     
-def retrieve_url_analysis():
+def retrieve_url_analysis(url_input):
     """
     Sends an HTTP GET request using an analysis ID to the API to return a URL analysis.
     Uses multiple malware DBs & engines to classify the url as malicious, suspicious, undetected, and/or harmless.
     """
-    url_input = input("Enter the link to be scanned by VirusTotal: ").strip('"').strip("'").strip() # change to streamlit input field
     analysis_url = scan_url(url_input)
     headers = {
         "accept": "application/json",
@@ -49,7 +49,7 @@ def retrieve_url_analysis():
         for category in results:
             print(results[category], category) 
 
-        if results['malicious'] > 0 or results['suspicious'] > 1:
+        if results['malicious'] > 0 or results['suspicious'] > 0:
             return "At least one scan found the link to be malicious or suspicious."
         elif results['harmless'] > results['undetected']:
             return "Majority of the scans found the link to be harmless."
@@ -58,4 +58,3 @@ def retrieve_url_analysis():
     except Exception as e:
         print(f"Error: {e}")
     
-retrieve_url_analysis()
