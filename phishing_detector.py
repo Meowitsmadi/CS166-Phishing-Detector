@@ -81,8 +81,3 @@ def is_base64(s):
         return base64.b64encode(base64.b64decode(s)).decode() == s
     except Exception:
         return False
-
-#test
-link = input("Paste your suspected link here: ")
-result = phish_checker(link)
-print(result)
